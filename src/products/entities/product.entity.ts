@@ -4,8 +4,8 @@ export class Product {
     name: string;
     description: string;
     price: number;
-    stock: number;
-    image: string;
+    image: Array<string>;
+    category: object;
     
     constructor(partial: Partial<Product>) {
         Object.assign(this, partial);
