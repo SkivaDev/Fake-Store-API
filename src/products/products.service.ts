@@ -11,20 +11,23 @@ export class ProductsService {
   
   create(createProductDto: CreateProductDto) {
 
-    const { images } = createProductDto;
+    const newProduct = { ...createProductDto };
 
-    // return this.prisma.product.create({
-    //   data: ,
-    // });
+    return this.prisma.product.create({
+      data: {
+        name: newProduct.name,
+        description: newProduct.description,
+        price: newProduct.price,
+        categoryId: newProduct.categoryId,
+        // image: {
+        //   create: newProduct.image.map((url) => ({
+        //     url,
+        //   })),
+        // },
+      }
+    });
   }
 
-  // createImage(image: string) {
-  //   return this.prisma.image.create({
-  //     data: {
-  //       url: image,
-  //     },
-  //   });
-  // }
 
   findAll() {
     return this.prisma.product.findMany();
