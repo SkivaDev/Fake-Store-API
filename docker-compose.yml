@@ -6,9 +6,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: fakeStoreDB
-      MYSQL_USER: skivadev
+      MYSQL_USER: root
       MYSQL_PASSWORD: root
     volumes:
       - ./data:/var/lib/mysql
     ports:
-      - 3306:3306
+      - 3310:3306
