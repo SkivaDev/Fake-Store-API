@@ -8,15 +8,16 @@ import {
 
 export class CreateCategoryDto {
   @IsString()
-  @MinLength(4)
+  @MinLength(3)
   name: string;
 
   @IsString()
+  @MinLength(3)
   @IsOptional()
   description: string;
 
   @IsString()
-  @IsNotEmpty()
   @IsUrl()
+  @IsNotEmpty()
   image: string;
 }

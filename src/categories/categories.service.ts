@@ -14,7 +14,7 @@ export class CategoriesService {
   }
 
   findAll() {
-    return `This action returns all categories`;
+    return this.prisma.category.findMany();
   }
 
   findOne(id: number) {
@@ -29,7 +29,7 @@ export class CategoriesService {
     return `This action updates a #${id} category`;
   }
 
-  remove(id: number) {
+  delete(id: number) {
     return `This action removes a #${id} category`;
   }
 }
