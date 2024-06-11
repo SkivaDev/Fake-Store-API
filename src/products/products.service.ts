@@ -42,7 +42,16 @@ export class ProductsService {
 
 
     console.log(images);
-    return { ...newProduct, category, images};
+    return { 
+      id: newProduct.id,
+      name: newProduct.name,
+      price: newProduct.price,
+      description: newProduct.description,
+      images: images,
+      creationAt: newProduct.createdAt,
+      updatedAt: newProduct.updatedAt,
+      category: category
+    };
   }
 
 
@@ -64,13 +73,7 @@ export class ProductsService {
         images: images.map((image) => JSON.stringify([image.url])),
         creationAt: rest.createdAt,
         updatedAt: rest.updatedAt,
-        category: {
-          id: category.id,
-          name: category.name,
-          image: category.image,
-          creationAt: category.createdAt,
-          updatedAt: category.updatedAt,
-        },
+        category: category
       };
     });
   }
@@ -97,21 +100,111 @@ export class ProductsService {
       images: images.map((image) => JSON.stringify([image.url])),
       creationAt: rest.createdAt,
       updatedAt: rest.updatedAt,
-      category: {
-        id: category.id,
-        name: category.name,
-        image: category.image,
-        creationAt: category.createdAt,
-        updatedAt: category.updatedAt,
-      },
+      category: category
     };
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+
+    const { categoryId, images: newImages } = updateProductDto;
+
+    const category = await this.prisma.category.findUnique({
+      where: {
+        id: categoryId,
+      },
+    });
+
+    const product = await this.prisma.product.update({
+      where: {
+        id,
+      },
+      data: {
+        name: updateProductDto.name,
+        description: updateProductDto.description,
+        price: updateProductDto.price,
+        categoryId: category.id,
+      },
+      include: {
+        category: true,
+        images: true,
+      },
+    });
+
+    const { category: categoryData, images, ...rest } = product;
+
+
+    let newImagesData;
+
+    if (newImages) {
+          // Delete all images
+    images.map(async (image) => {
+      await this.prisma.image.delete({
+        where: {
+          id: image.id,
+        },
+      });
+    });
+
+    // Create new images
+    newImagesData = newImages.map(async (url) => {
+      const newImage = await this.prisma.image.create({
+        data: {
+          url,
+          productId: product.id,
+        },
+      });
+
+      return newImage.url;
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+
+    
+
+    return {
+      id: rest.id,
+      name: rest.name,
+      price: rest.price,
+      description: rest.description,
+      images: images.map((image) => JSON.stringify([image.url])),
+      creationAt: rest.createdAt,
+      updatedAt: rest.updatedAt,
+      category: categoryData
+    };
+  }
+
+  async remove(id: number) {
+
+    const product = await this.prisma.product.delete({
+      where: {
+        id,
+      },
+      include: {
+        category: true,
+        images: true,
+      },
+    })
+
+    const { category, images, ...rest } = product;
+
+    // Delete all images
+    images.map(async (image) => {
+      await this.prisma.image.delete({
+        where: {
+          id: image.id,
+        },
+      });
+    });
+
+    return {
+      id: rest.id,
+      name: rest.name,
+      price: rest.price,
+      description: rest.description,
+      images: images.map((image) => JSON.stringify([image.url])),
+      creationAt: rest.createdAt,
+      updatedAt: rest.updatedAt,
+      category: category
+    };
   }
 }
