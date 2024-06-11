@@ -88,15 +88,15 @@ export class ProductsService {
 
     if (price && !price_min && !price_max) {
       option.where = {
-        price: +price,
+        price: price,
       };
     }
 
     if (!price && price_min && price_max) {
       option.where = {
         price: {
-          gte: +price_min,
-          lte: +price_max,
+          gte: price_min,
+          lte: price_max,
         },
       };
     }
