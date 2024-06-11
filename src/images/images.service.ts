@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class ImagesService {
+
+  constructor(private prisma: PrismaService) {}
+
   create(createImageDto: CreateImageDto) {
     return 'This action adds a new image';
   }
 
   findAll() {
-    return `This action returns all images`;
+    return this.prisma.image.findMany();
   }
 
   findOne(id: number) {
