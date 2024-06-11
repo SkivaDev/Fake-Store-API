@@ -3,6 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Product } from './entities/product.entity';
+import { FilterProductsDto } from './dto/filter-products.dto';
 
 @Injectable()
 export class ProductsService {
@@ -29,34 +30,107 @@ export class ProductsService {
       },
     })
 
-    const images = createProductDto.images.map(async (url) => {
-      const newImage = await this.prisma.image.create({
+    const { images } = createProductDto;
+
+    images.map(async (url) => {
+      await this.prisma.image.create({
         data: {
           url,
           productId: newProduct.id,
         },
       });
-
-      return newImage.url;
     });
 
-
-    console.log(images);
-    return { 
+    return {
       id: newProduct.id,
       name: newProduct.name,
       price: newProduct.price,
       description: newProduct.description,
-      images: images,
+      images: images.map((image) => JSON.stringify([image])),
       creationAt: newProduct.createdAt,
       updatedAt: newProduct.updatedAt,
       category: category
-    };
+    }
+
+
+    // const images = createProductDto.images.map(async (url) => {
+    //   const newImage = await this.prisma.image.create({
+    //     data: {
+    //       url,
+    //       productId: newProduct.id,
+    //     },
+    //   });
+
+    //   return newImage.url;
+    // });
+
+
+    // return { 
+    //   id: newProduct.id,
+    //   name: newProduct.name,
+    //   price: newProduct.price,
+    //   description: newProduct.description,
+    //   images: images,
+    //   creationAt: newProduct.createdAt,
+    //   updatedAt: newProduct.updatedAt,
+    //   category: category
+    // };
   }
 
 
-  async findAll() {
+  async findAll(params: FilterProductsDto) {
+
+    const option = {
+      where: {},
+    };
+
+    const { price, price_min, price_max } = params;
+
+    if (price && !price_min && !price_max) {
+      option.where = {
+        price: +price,
+      };
+    }
+
+    if (!price && price_min && price_max) {
+      option.where = {
+        price: {
+          gte: +price_min,
+          lte: +price_max,
+        },
+      };
+    }
+
+    const { name } = params;
+
+    if (name) {
+      option.where = {
+        ...option.where,
+        name: {
+          contains: name,
+        },
+      };
+    }
+
+    const { categoryId } = params;
+
+    if (categoryId) {
+      option.where = {
+        ...option.where,
+        categoryId: categoryId,
+      };
+    }
+
+    if(params?.limit > 0) {
+      option['take'] = params.limit;
+    }
+
+    if(params?.offset > 0) {
+      option['skip'] = params.offset;
+    }
+
     const products = await this.prisma.product.findMany({
+      ...option,
       include: {
         category: true,
         images: true,

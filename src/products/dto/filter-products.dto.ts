@@ -1,30 +1,40 @@
+import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsPositive, IsString, Min, ValidateIf } from "class-validator";
 
 export class FilterProductsDto {
     @IsNumber()
     @IsOptional()
-    limit: number;
+    @Type(() => Number)
+    limit?: number;
   
     @IsNumber()
     @IsOptional()
-    offset: number;
+    @Type(() => Number)
+    offset?: number;
   
     @IsOptional()
-    price: number;
+    @IsNumber()
+    @Type(() => Number)
+    price?: number;
   
     @IsOptional()
+    @IsNumber()
     @Min(0)
-    price_min: number;
+    @Type(() => Number)
+    price_min?: number;
   
     @ValidateIf((params) => params.minPrice)
     @IsPositive()
-    price_max: number;
+    @Type(() => Number)
+    price_max?: number;
   
     @IsOptional()
     @IsString()
-    title: string;
+    name?: string;
   
     @IsOptional()
     @IsNumber()
-    categoryId: number;
+    @Min(1)
+    @Type(() => Number)
+    categoryId?: number;
 }
