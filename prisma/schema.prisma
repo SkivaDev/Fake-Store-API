@@ -51,4 +51,16 @@ model Image {
   updatedAt   DateTime @updatedAt
 }
 
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String
+  role        String   @default("USER")
+  avatar      String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 
