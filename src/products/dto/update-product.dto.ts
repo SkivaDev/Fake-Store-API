@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateProductDto } from './create-product.dto';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {
     @IsString()
@@ -20,8 +20,9 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     price?: number;
 
     @IsString({ each: true })
-    @IsUrl({}, { each: true })
+    @IsUrl({protocols: ['http', 'https']}, { each: true })
     @IsNotEmpty({ each: true })
+    @Matches(/(https?:\/\/.*\.(?:png|jpg))/, { each: true, message: 'Invalid image url'})
     @IsOptional()
     images?: string[];
 

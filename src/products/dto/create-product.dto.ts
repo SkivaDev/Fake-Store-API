@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, MaxLength, Min, MinLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, Matches, MaxLength, Min, MinLength } from "class-validator";
 
 export class CreateProductDto {
     @IsString()
@@ -16,8 +16,9 @@ export class CreateProductDto {
     price: number;
 
     @IsString({ each: true })
-    @IsUrl({}, { each: true })
+    @IsUrl({protocols: ['http', 'https']}, { each: true })
     @IsNotEmpty({ each: true })
+    @Matches(/(https?:\/\/.*\.(?:png|jpg))/, { each: true, message: 'Invalid image url'})
     images: string[];
 
     @IsNumber()
