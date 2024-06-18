@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "project",
-        "products"
+        "products",
+        "users"
     ]
 }
