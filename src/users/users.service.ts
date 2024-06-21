@@ -9,15 +9,28 @@ export class UsersService {
   constructor(private prisma:PrismaService) {}
 
   create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    const { name, email, password, role, avatar } = createUserDto;
+    return this.prisma.user.create({
+      data: {
+        name,
+        email,
+        password,
+        role,
+        avatar
+      }
+    });
   }
 
   findAll() {
-    return `This action returns all users`;
+    return this.prisma.user.findMany();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    // return this.prisma.user.findUnique({
+    //   where: {
+    //     id
+    //   }
+    // });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
