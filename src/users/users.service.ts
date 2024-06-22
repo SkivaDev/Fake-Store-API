@@ -5,8 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class UsersService {
-
-  constructor(private prisma:PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
     const { name, email, password, role, avatar } = createUserDto;
@@ -16,8 +15,8 @@ export class UsersService {
         email,
         password,
         role,
-        avatar
-      }
+        avatar,
+      },
     });
   }
 
@@ -26,11 +25,10 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-
     const user = await this.prisma.user.findUnique({
       where: {
-        id
-      }
+        id,
+      },
     });
 
     if (!user) {
