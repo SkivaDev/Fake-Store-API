@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         "project",
         "products",
-        "users"
+        "users",
+        "prisma"
     ]
 }
