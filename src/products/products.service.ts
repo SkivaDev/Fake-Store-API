@@ -7,12 +7,9 @@ import { FilterProductsDto } from './dto/filter-products.dto';
 
 @Injectable()
 export class ProductsService {
+  constructor(private prisma: PrismaService) {}
 
-  constructor(private prisma:PrismaService) {}
-
-  
   async create(createProductDto: CreateProductDto): Promise<any> {
-
     const { categoryId } = createProductDto;
 
     const category = await this.prisma.category.findUnique({
@@ -22,7 +19,7 @@ export class ProductsService {
     });
 
     if (!category) {
-      return new NotFoundException(`Category with id ${categoryId} not found.`); 
+      return new NotFoundException(`Category with id ${categoryId} not found.`);
     }
 
     const newProduct = await this.prisma.product.create({
@@ -32,7 +29,7 @@ export class ProductsService {
         price: createProductDto.price,
         categoryId: category.id,
       },
-    })
+    });
 
     const { images } = createProductDto;
 
@@ -54,14 +51,11 @@ export class ProductsService {
       images: images,
       creationAt: newProduct.createdAt,
       updatedAt: newProduct.updatedAt,
-      category: category
-    }
-
+      category: category,
+    };
   }
 
-
   async findAll(params: FilterProductsDto) {
-
     const option = {
       where: {},
     };
@@ -103,11 +97,11 @@ export class ProductsService {
       };
     }
 
-    if(params?.limit > 0) {
+    if (params?.limit > 0) {
       option['take'] = params.limit;
     }
 
-    if(params?.offset > 0) {
+    if (params?.offset > 0) {
       option['skip'] = params.offset;
     }
 
@@ -130,13 +124,12 @@ export class ProductsService {
         images: images.map((image) => image.url),
         creationAt: rest.createdAt,
         updatedAt: rest.updatedAt,
-        category: category
+        category: category,
       };
     });
   }
 
   async findOne(id: number) {
-    
     const product = await this.prisma.product.findUnique({
       where: {
         id,
@@ -162,12 +155,11 @@ export class ProductsService {
       images: images.map((image) => image.url),
       creationAt: rest.createdAt,
       updatedAt: rest.updatedAt,
-      category: category
+      category: category,
     };
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-
     const productExist = await this.prisma.product.findUnique({
       where: {
         id,
@@ -180,7 +172,7 @@ export class ProductsService {
 
     const option = {
       data: {},
-    }
+    };
 
     const { categoryId, images: newImages } = updateProductDto;
 
@@ -192,7 +184,9 @@ export class ProductsService {
       });
 
       if (!category) {
-        return new NotFoundException(`Category with id ${categoryId} not found.`);
+        return new NotFoundException(
+          `Category with id ${categoryId} not found.`,
+        );
       }
 
       option.data = {
@@ -222,8 +216,6 @@ export class ProductsService {
       };
     }
 
-
-
     const product = await this.prisma.product.update({
       where: {
         id,
@@ -246,7 +238,7 @@ export class ProductsService {
           },
         });
       });
-  
+
       // Create new images
       newImages.map(async (url) => {
         const newImage = await this.prisma.image.create({
@@ -255,7 +247,7 @@ export class ProductsService {
             productId: product.id,
           },
         });
-  
+
         return newImage.url;
       });
     }
@@ -268,13 +260,11 @@ export class ProductsService {
       images: newImages ?? images?.map((image) => image.url) ?? [],
       creationAt: rest.createdAt,
       updatedAt: rest.updatedAt,
-      category: categoryData
+      category: categoryData,
     };
-
   }
 
   async remove(id: number) {
-
     const images = await this.prisma.image.findMany({
       where: {
         productId: id,
@@ -297,7 +287,7 @@ export class ProductsService {
       include: {
         category: true,
       },
-    })
+    });
 
     const { category, ...rest } = product;
 
@@ -310,7 +300,7 @@ export class ProductsService {
       images: images.map((image) => image.url),
       creationAt: rest.createdAt,
       updatedAt: rest.updatedAt,
-      category: category
+      category: category,
     };
   }
 }
