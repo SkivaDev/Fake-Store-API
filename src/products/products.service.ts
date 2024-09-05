@@ -141,7 +141,7 @@ export class ProductsService {
     });
 
     if (!product) {
-      return new NotFoundException(`Product with id ${id} not found.`);
+      throw new NotFoundException(`Product with id ${id} not found.`);
     }
 
     const { category, images, ...rest } = product;
@@ -167,7 +167,7 @@ export class ProductsService {
     });
 
     if (!productExist) {
-      return new NotFoundException(`Product with id ${id} not found.`);
+      throw new NotFoundException(`Product with id ${id} not found.`);
     }
 
     const option = {
@@ -265,62 +265,40 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-
+    // Buscar el producto con sus imágenes
     const product = await this.prisma.product.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        // category: true,
-        images: true,
-      },
+      where: { id },
+      include: { images: true },
     });
 
+    // Verificar si el producto existe
     if (!product) {
-      return new NotFoundException(`Product with id ${id} not found.`);
+      throw new NotFoundException(`Product with id ${id} not found.`);
     }
 
-    // const { category, images, ...rest } = product;
-    const {images} = product;
+    // Eliminar todas las imágenes del producto en paralelo
+    await Promise.all(
+      product.images.map((image) =>
+        this.prisma.image.delete({ where: { id: image.id } }),
+      ),
+    );
 
-
-
-    // const images = await this.prisma.image.findMany({
-    //   where: {
-    //     productId: id,
-    //   },
-    // });
-
-    // Delete all images
-    images.map(async (image) => {
-      await this.prisma.image.delete({
-        where: {
-          id: image.id,
-        },
-      });
-    });
-
+    // Eliminar el producto
     const deletedProduct = await this.prisma.product.delete({
-      where: {
-        id,
-      },
-      include: {
-        category: true,
-      },
+      where: { id },
+      include: { category: true },
     });
 
-    const { category, ...rest } = deletedProduct;
-
+    // Estructurar la respuesta
     return {
-      id: rest.id,
-      name: rest.name,
-      price: rest.price,
-      description: rest.description,
-      // images: images.map((image) => JSON.stringify([image.url])),
-      images: images.map((image) => image.url),
-      creationAt: rest.createdAt,
-      updatedAt: rest.updatedAt,
-      category: category,
+      id: deletedProduct.id,
+      name: deletedProduct.name,
+      price: deletedProduct.price,
+      description: deletedProduct.description,
+      images: product.images.map((image) => image.url),
+      createdAt: deletedProduct.createdAt,
+      updatedAt: deletedProduct.updatedAt,
+      category: deletedProduct.category,
     };
   }
 }
