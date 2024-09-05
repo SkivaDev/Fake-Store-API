@@ -22,7 +22,7 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {
     @IsString({ each: true })
     @IsUrl({protocols: ['http', 'https']}, { each: true })
     @IsNotEmpty({ each: true })
-    @Matches(/(https?:\/\/.*\.(?:png|jpg))/, { each: true, message: 'Invalid image url'})
+    @Matches(/(https?:\/\/.*\.(?:png|jpg|jpeg))/, { each: true, message: 'It must be a valid url and have a valid image extension (png, jpg, jpeg)'})
     @IsOptional()
     images?: string[];
 
