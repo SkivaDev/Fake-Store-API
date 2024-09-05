@@ -265,11 +265,31 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const images = await this.prisma.image.findMany({
+
+    const product = await this.prisma.product.findUnique({
       where: {
-        productId: id,
+        id,
+      },
+      include: {
+        // category: true,
+        images: true,
       },
     });
+
+    if (!product) {
+      return new NotFoundException(`Product with id ${id} not found.`);
+    }
+
+    // const { category, images, ...rest } = product;
+    const {images} = product;
+
+
+
+    // const images = await this.prisma.image.findMany({
+    //   where: {
+    //     productId: id,
+    //   },
+    // });
 
     // Delete all images
     images.map(async (image) => {
@@ -280,7 +300,7 @@ export class ProductsService {
       });
     });
 
-    const product = await this.prisma.product.delete({
+    const deletedProduct = await this.prisma.product.delete({
       where: {
         id,
       },
@@ -289,7 +309,7 @@ export class ProductsService {
       },
     });
 
-    const { category, ...rest } = product;
+    const { category, ...rest } = deletedProduct;
 
     return {
       id: rest.id,
