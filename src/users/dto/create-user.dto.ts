@@ -15,13 +15,12 @@ export class CreateUserDto {
     password: string;
 
     @IsString()
-    @IsEnum(['admin', 'user'])
-    @IsOptional()
-    role?: string;
+    @IsEnum(['admin', 'user'], { message: 'Invalid role, it must be an admin or an user' })
+    role: string;
 
     @IsString()
     @IsUrl({protocols: ['http', 'https']})
-    @Matches(/(https?:\/\/.*\.(?:png|jpg))/, { message: 'Invalid image url'})
+    @Matches(/(https?:\/\/.*\.(?:png|jpg|jpeg))/, { message: 'It must be a valid url and have a valid image extension (png, jpg, jpeg)'})
     @IsOptional()
     avatar?: string;
 }
