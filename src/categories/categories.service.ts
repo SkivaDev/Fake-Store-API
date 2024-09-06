@@ -48,10 +48,44 @@ export class CategoriesService {
   }
 
   async delete(id: number) {
-    return this.prisma.category.delete({
-      where: {
-        id: id,
-      }
+    // Verificar si la categoría existe
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+      include: { products: { include: { images: true } } }, // Incluir productos e imágenes
     });
+
+    if (!category) {
+      throw new NotFoundException(`Category with id ${id} not found.`);
+    }
+
+    // Eliminar imágenes y productos relacionados en paralelo
+    await Promise.all(
+      category.products.map(async (product) => {
+        // Eliminar todas las imágenes asociadas al producto
+        await Promise.all(
+          product.images.map((image) =>
+            this.prisma.image.delete({ where: { id: image.id } }),
+          ),
+        );
+
+        // Eliminar el producto después de eliminar las imágenes
+        await this.prisma.product.delete({ where: { id: product.id } });
+      }),
+    );
+
+    // Eliminar la categoría
+    const deletedCategory = await this.prisma.category.delete({
+      where: { id },
+    });
+
+    // Devolver la respuesta
+    return {
+      id: deletedCategory.id,
+      name: deletedCategory.name,
+      description: deletedCategory.description,
+      image: deletedCategory.image,
+      createdAt: deletedCategory.createdAt,
+      updatedAt: deletedCategory.updatedAt,
+    };
   }
 }
