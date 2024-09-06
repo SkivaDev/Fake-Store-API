@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
+import { IsAvailableUserDto } from './dto/isAvailable-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -82,5 +83,18 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async isAvailable(isAvailableUserDto: IsAvailableUserDto) {
+
+    const { email } = isAvailableUserDto;
+    
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    return !user;
   }
 }

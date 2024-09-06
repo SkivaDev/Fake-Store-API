@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, ParseU
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { IsAvailableUserDto } from './dto/isAvailable-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -15,6 +16,11 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('/is-available')
+  isAvailable(@Body() isAvailableUserDto: IsAvailableUserDto) {
+    return this.usersService.isAvailable(isAvailableUserDto);
   }
 
   @Get(':id')
