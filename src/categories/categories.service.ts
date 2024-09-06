@@ -31,12 +31,20 @@ export class CategoriesService {
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with id ${id} not found.`);
+    }
+
     return this.prisma.category.update({
-      where: {
-        id: id,
-      },
+      where: { id },
       data: updateCategoryDto,
     });
+
   }
 
   async delete(id: number) {
