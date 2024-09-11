@@ -4,6 +4,7 @@
         "products",
         "users",
         "prisma",
-        "categories"
+        "categories",
+        "auth"
     ]
 }
