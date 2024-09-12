@@ -15,7 +15,7 @@ export class AuthService {
     ) {}
 
     async validateUser(email: string, pass: string): Promise<any> {
-        const user = await this.usersService.findOne(email);
+        const user = await this.usersService.findOneByEmail(email);
         if (user && user.password === pass) {
             const { password, ...result } = user;
             return result;
@@ -47,24 +47,22 @@ export class AuthService {
         // return 'Login';
     }
 
-    async generateAccessToken(user: User) {
+    generateAccessToken(user: User) {
         const payload: Payload = { sub: user.id };
-        return {
-            access_token: this.jwtService.sign(payload, {
-                secret: process.env.JWT_SECRET,
-                expiresIn: '1d',
-            }),
-        };
+
+        return this.jwtService.sign(payload, {
+            secret: process.env.JWT_SECRET,
+            expiresIn: '1d',
+        });
     }
 
-    async generateRefreshToken(user: User) {
+    generateRefreshToken(user: User) {
         const payload: Payload = { sub: user.id };
-        return {
-            refresh_token: this.jwtService.sign(payload, {
-                secret: process.env.JWT_SECRET,
-                expiresIn: '7d',
-            }),
-        };
+
+        return this.jwtService.sign(payload, {
+            secret: process.env.JWT_SECRET,
+            expiresIn: '7d',
+        });
     }
 
     async generateAccessTokenByRefreshToken (refreshTokenDto: RefreshTokenDto) {
