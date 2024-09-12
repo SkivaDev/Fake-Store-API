@@ -4,6 +4,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { Payload } from './models/payload.model';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
 
 @Injectable()
 export class AuthService {
@@ -66,10 +67,12 @@ export class AuthService {
         };
     }
 
-    async generateAccessTokenByRefreshToken (refreshToken: string) {
+    async generateAccessTokenByRefreshToken (refreshTokenDto: RefreshTokenDto) {
 
         try {
             
+            const { refreshToken } = refreshTokenDto;
+
             const payload = this.jwtService.verify(refreshToken, {
                 secret: process.env.JWT_SECRET,
             }) as Payload;

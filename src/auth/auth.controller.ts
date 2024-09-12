@@ -7,6 +7,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { Payload } from './models/payload.model';
 import { UsersService } from 'src/users/users.service';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,4 +37,8 @@ export class AuthController {
         return this.usersService.findOne(user?.id);
     }
 
+    @Post('refresh-token')
+    refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+        return this.authService.generateAccessTokenByRefreshToken(refreshTokenDto);
+    }
 }
