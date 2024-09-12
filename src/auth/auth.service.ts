@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
+import { Payload } from './models/payload.model';
 
 @Injectable()
 export class AuthService {
@@ -44,7 +46,50 @@ export class AuthService {
         // return 'Login';
     }
 
-    // register() {
-    //     return 'Register';
-    // }
+    async generateAccessToken(user: User) {
+        const payload: Payload = { sub: user.id };
+        return {
+            access_token: this.jwtService.sign(payload, {
+                secret: process.env.JWT_SECRET,
+                expiresIn: '1d',
+            }),
+        };
+    }
+
+    async generateRefreshToken(user: User) {
+        const payload: Payload = { sub: user.id };
+        return {
+            refresh_token: this.jwtService.sign(payload, {
+                secret: process.env.JWT_SECRET,
+                expiresIn: '7d',
+            }),
+        };
+    }
+
+    async generateAccessTokenByRefreshToken (refreshToken: string) {
+
+        try {
+            
+            const payload = this.jwtService.verify(refreshToken, {
+                secret: process.env.JWT_SECRET,
+            }) as Payload;
+
+            const user = await this.usersService.findOne(payload.sub);
+            const newAccessToken = this.generateAccessToken(user);
+            const newRefreshToken = this.generateRefreshToken(user);
+
+            return {
+                access_token: newAccessToken,
+                refresh_token: newRefreshToken
+            }
+
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token');
+        }
+
+
+ 
+    }
+
+
 }
